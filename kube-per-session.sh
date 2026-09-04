@@ -24,7 +24,7 @@ else
     return 0
 fi
 
-# Choose a user-scoped runtime directory when possible.
+# Prefer per-user runtime storage when available, otherwise fall back to /tmp.
 if [[ -n "${XDG_RUNTIME_DIR:-}" && -d "$XDG_RUNTIME_DIR" && -w "$XDG_RUNTIME_DIR" ]]; then
     _kps_tmp_dir="$XDG_RUNTIME_DIR"
 else
@@ -33,8 +33,8 @@ fi
 
 export KUBE_SESSION_CONFIG="$(mktemp "${_kps_tmp_dir}/kube-${USER:-$(id -un)}-XXXXXX")"
 
-# kubectl accepts colon-separated KUBECONFIG values, so flatten the master source
-# into one temporary config instead of relying on a plain cp.
+# kubectl supports colon-separated KUBECONFIG values. Flatten the configured
+# source(s) into one isolated file for this shell session.
 if ! KUBECONFIG="$KPS_MASTER_KUBECONFIG" kubectl config view --raw --flatten >"$KUBE_SESSION_CONFIG"; then
     rm -f -- "$KUBE_SESSION_CONFIG"
     unset KUBE_SESSION_CONFIG
@@ -54,26 +54,28 @@ _kps_cleanup() {
     fi
 }
 
-# Preserve any pre-existing EXIT trap and run it after our cleanup.
-_kps_previous_exit_trap="$(trap -p EXIT)"
+# Preserve a simple pre-existing EXIT trap and run it after kube-per-session's
+# cleanup. Bash executes EXIT traps when an interactive shell exits, including
+# normal SSH disconnects. SIGKILL and host crashes cannot be trapped.
+_kps_previous_exit_trap="$(trap -p EXIT || true)"
 _kps_previous_exit_cmd=""
 if [[ -n "$_kps_previous_exit_trap" ]]; then
-    _kps_previous_exit_cmd="${_kps_previous_exit_trap#trap -- \' }"
+    _kps_previous_exit_cmd="${_kps_previous_exit_trap#trap -- \'}"
     _kps_previous_exit_cmd="${_kps_previous_exit_cmd%\' EXIT}"
 fi
 
 _kps_exit_handler() {
     local rc=$?
     _kps_cleanup
+
     if [[ -n "${_kps_previous_exit_cmd:-}" ]]; then
         eval "$_kps_previous_exit_cmd"
     fi
+
     return "$rc"
 }
 
 trap _kps_exit_handler EXIT
-trap 'exit 129' HUP
-trap 'exit 143' TERM
 
 kuse() {
     if [[ $# -ne 1 ]]; then
