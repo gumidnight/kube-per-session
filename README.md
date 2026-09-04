@@ -7,7 +7,7 @@ Independent Kubernetes contexts per terminal session, while keeping one master k
 Normally, multiple shells using the same kubeconfig also share its `current-context`. Switching context in one terminal can therefore change what another terminal targets. `kube-per-session` avoids that by creating an isolated temporary kubeconfig for each interactive shell.
 
 <p align="center">
-  <a href="https://www.buymeacoffee.com/gumidnight">
+  <a href="https://buymeacoffee.com/gumidnight">
     <img src="https://img.buymeacoffee.com/button-api/?text=Buy%20me%20a%20coffee&button_colour=5F7FFF&font_colour=ffffff&coffee_colour=FFDD00" />
   </a>
 </p>
