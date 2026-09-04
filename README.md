@@ -185,6 +185,14 @@ bash uninstall.sh
 source ~/.bashrc
 ```
 
+## Support
+
+<p align="center">
+  <a href="https://www.buymeacoffee.com/gumidnight">
+    <img src="https://img.buymeacoffee.com/button-api/?text=Buy%20me%20a%20coffee&button_colour=5F7FFF&font_colour=ffffff&coffee_colour=FFDD00" />
+  </a>
+</p>
+
 ## License
 
 MIT
