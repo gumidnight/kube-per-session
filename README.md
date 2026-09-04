@@ -43,7 +43,7 @@ Each terminal can switch independently without rewriting the master kubeconfig.
 - `koff` to clear the current shell's context
 - Validates context names before switching
 - Temporary kubeconfigs are created with restrictive permissions
-- Automatic cleanup on normal shell exit
+- Automatic cleanup on shell exit
 - No `sudo` required
 - Bash only for v0.1
 
@@ -60,7 +60,7 @@ Clone the repository and run:
 ```bash
 git clone https://github.com/gumidnight/kube-per-session.git
 cd kube-per-session
-./install.sh
+bash install.sh
 source ~/.bashrc
 ```
 
@@ -160,7 +160,7 @@ If your original `KUBECONFIG` contained multiple colon-separated files, use the 
 
 ## Cleanup
 
-The session kubeconfig is removed on normal shell exit. The utility also handles common `HUP` and `TERM` termination paths.
+The session kubeconfig is removed when the shell exits normally. In typical SSH usage, closing the terminal or ending the SSH connection causes the remote shell to exit and the cleanup trap to run.
 
 No shell script can guarantee cleanup after `SIGKILL` (`kill -9`), a kernel crash, or a power loss. When available, `kube-per-session` prefers `$XDG_RUNTIME_DIR`; otherwise it falls back to `/tmp`.
 
@@ -181,7 +181,7 @@ The goal is to reduce accidental cross-session context switching, not to replace
 ## Uninstall
 
 ```bash
-./uninstall.sh
+bash uninstall.sh
 source ~/.bashrc
 ```
 
